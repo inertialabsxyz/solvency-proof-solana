@@ -15,7 +15,12 @@ declare_id!("BWg55qMGUf4RUUiFqGAJKPuwLmLpDQRA4y3US97thnSw");
 pub mod solvency_proof {
     use super::*;
 
-    pub fn attest_solvency(ctx: Context<AttestSolvency>) -> Result<()> {
-        solvency::handler(ctx)
+    pub fn attest_solvency(
+        ctx: Context<AttestSolvency>,
+        proof: Vec<u8>,
+        threshold: u32,
+        commitment: [u8; 32],
+    ) -> Result<()> {
+        solvency::handler(ctx, proof, threshold, commitment)
     }
 }
