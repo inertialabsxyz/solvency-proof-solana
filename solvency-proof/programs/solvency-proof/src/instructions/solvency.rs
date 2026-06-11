@@ -33,13 +33,25 @@ pub fn handler(
     threshold: u32,
     commitment: [u8; 32],
 ) -> Result<()> {
-    let mut public_inputs = Vec::with_capacity(64);
-    public_inputs.extend_from_slice(&u32_to_be_field(threshold)); // threshold
-    public_inputs.extend_from_slice(&commitment); // commitment
+    // Public witness in gnark format: a 12-byte header followed by one 32-byte
+    // big-endian field element per public input. Order matches the circuit's
+    // main(balances, threshold, commitment): [threshold, commitment].
+    // Verified against circuit/target/circuit.pw, whose header is
+    // 0x00000002_00000000_00000002 = [2 public, 0 private, count 2].
+    const NR_INPUTS: u32 = 2;
+    let mut witness = Vec::with_capacity(12 + (NR_INPUTS as usize) * 32);
+    witness.extend_from_slice(&NR_INPUTS.to_be_bytes()); // nr public inputs
+    witness.extend_from_slice(&0u32.to_be_bytes()); // nr private inputs (always 0)
+    witness.extend_from_slice(&NR_INPUTS.to_be_bytes()); // vector entry count
+    witness.extend_from_slice(&u32_to_be_field(threshold)); // input[0]: threshold
+    witness.extend_from_slice(&commitment); // input[1]: commitment (32 BE bytes)
 
-    let mut data = Vec::with_capacity(proof.len() + public_inputs.len());
+    // Verifier instruction data: [proof][public_witness]. The verifier splits
+    // off the trailing 12 + NR_INPUTS*32 bytes as the witness; everything
+    // before that is the proof.
+    let mut data = Vec::with_capacity(proof.len() + witness.len());
     data.extend_from_slice(&proof);
-    data.extend_from_slice(&public_inputs);
+    data.extend_from_slice(&witness);
 
     let verify_ix = Instruction {
         program_id: VERIFIER_ID,

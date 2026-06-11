@@ -3757,6 +3757,7 @@ version = "0.1.0"
 dependencies = [
  "anchor-lang",
  "litesvm",
+ "solana-compute-budget-interface",
  "solana-keypair",
  "solana-message",
  "solana-poseidon",
