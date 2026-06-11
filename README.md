@@ -106,10 +106,15 @@ Not yet done (tracked against the v2 scope):
 
 ## Provenance roadmap (not in this scope)
 
-Strengthening *authenticity* is about binding to an anchor the verifier already trusts:
+Strengthening *authenticity* is about binding the balances to an anchor the verifier already
+trusts — **without** revealing the accounts. (Reading the accounts' real balances on-chain would
+work too, but it requires putting the addresses in the transaction, making them and their balances
+public; that defeats the privacy the proof exists to provide, so it is not pursued here.)
 
-1. **On-chain account state** (recommended next) — commit `(account, balance)` pairs; after
-   verifying, independently read those accounts' real balances on-chain and check they match.
-   Trust comes from Solana itself.
-2. **Signed attestations** — balances arrive signed; the circuit verifies the signatures (zkTLS track).
-3. **Published Merkle root** — prove each balance is a leaf under a pre-published root (completeness).
+1. **Signed attestations** (recommended next) — a trusted source signs `(account, balance)` pairs;
+   the *circuit* verifies the signatures, so the addresses never leave the prover. Provenance is
+   rooted in the signer's key. Bridges to TLS-attestation / zkTLS. *Limit:* trust-by-delegation to
+   the signer.
+2. **Published Merkle root** — prove each balance is a leaf under a pre-published root of all
+   accounts. Attacks the *completeness* gap (no omitted accounts) while keeping individual balances
+   private. *Limit:* doesn't stop a dishonest root.
