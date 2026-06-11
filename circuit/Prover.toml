@@ -1,0 +1,3 @@
+balances = ["1", "2", "3", "4"]
+threshold = "4"
+commitment = "0x130bf204a32cac1f0ace56c78b731aa3809f06df2731ebcf6b3464a15788b1b9"
